@@ -5,32 +5,45 @@ NPM : 2506637174
 
 Class : PBP KKI
 
+### Individual Assignment 08: Experience Form
+
+Formulir baru ada di `lib/screens/experience_form.dart` dan mengikuti model `Experience` pada web portofolio (Django).
+
+| Field | Widget | Validasi |
+|---|---|---|
+| Judul Pengalaman | `TextFormField` | Wajib, tidak boleh hanya spasi, maksimal 255 karakter |
+| Organisasi | `TextFormField` | Opsional, maksimal 160 karakter |
+| Deskripsi | `TextFormField` multiline | Wajib, tidak boleh hanya spasi |
+| Kategori | `DropdownButtonFormField` | Harus salah satu pilihan model (Internship, Research, Volunteer, Part-Time, Full-Time, Freelance) |
+| URL Thumbnail | `TextFormField` (keyboard URL) | Opsional; jika diisi harus URL `http://`/`https://` yang valid, maksimal 200 karakter |
+| Tanggal Mulai | `showDatePicker()` | Wajib |
+| Tanggal Selesai | `showDatePicker()` | Opsional (kosong berarti masih berlangsung); tidak boleh sebelum tanggal mulai |
+
+Formulir dapat dibuka dari kartu **Tambah Pengalaman** di halaman utama (`Navigator.push()`) dan dari opsi **Add Experience** di drawer. Drawer yang sama (Home, Add Project, Add Experience) dipakai di halaman utama dan kedua halaman formulir. Tombol **Simpan** memanggil `validate()`, lalu menampilkan seluruh isian dalam `AlertDialog` dengan tombol **Tutup**.
+
+Pengujian ada di `test/experience_form_test.dart`: akses dari kartu dan drawer, kembali dengan tombol kembali perangkat dan opsi Home, input tidak valid dan valid, urutan tanggal, layar sempit 320×568, serta validator URL. `flutter analyze` dan `flutter test` lolos tanpa temuan.
+
 ### Reflective Questions
-1. Widget tree is a hierarchy structure where each widget nests on another widget. The parent widget nests and sovereign over the location + configuration of the child/children(if any) widget, while the children widget inherits the context of the parent's
+1. Navigator
 
-2. the widgets that i used are:
-MaterialApp = root aplikasi.
-Scaffold = kerangka halaman.
-AppBar = bar judul.
-Text = menampilkan teks.
-Padding = memberi jarak di sekeliling widget.
-Column dan Row = menyusun widget secara vertikal dan horizontal.
-SizedBox = pemberi jarak kosong.
-Center = memusatkan widget.
-GridView = menampilkan tombol dalam bentuk kisi.
-Card = kartu informasi berbayangan.
-Container = mengatur ukuran dan padding.
-Material = memberi warna dan sudut membulat pada tombol.
-InkWell = menangkap ketukan dan memberi efek riak.
-Icon = menampilkan ikon.
-SnackBar (dipanggil melalui ScaffoldMessenger) = menampilkan pesan singkat.
-Widget buatan sendiri, yaitu MyApp, MyHomePage, InfoCard, dan ItemCard.
+Navigator.push() membuka halaman baru di atas halaman saat ini, Navigator.pushReplacement() mengganti halaman saat ini dengan halaman baru sehingga tidak bisa kembali dengan tombol back, sedangkan Navigator.pop() menutup halaman teratas dan kembali ke halaman sebelumnya.
+Kartu aksi "Tambah Proyek" dan "Tambah Pengalaman" menggunakan Navigator.push() sehingga pengguna tetap bisa kembali ke halaman utama dengan tombol kembali bawaan perangkat setelah membuka formulir.
+Opsi Home di drawer menggunakan Navigator.pushReplacement() ke MyHomePage, sehingga halaman saat ini diganti dengan halaman utama tanpa menumpuk halaman baru di riwayat navigasi.
 
-3. MaterialApp serves the foundation of the app with the style of Material Design, like themes, navigation or routing, and localization, so that generally it's the root widget for all widget underneath it can access the features
+2. Scaffold, AppBar, dan Drawer
 
-4. StatelessWidget doesn't have state that can change so that the interface only depends on the input data, while StatefulWidget has state that may change or trigger rebuild through setState(). Therefore StatelessWidget is chosen for static interface and StatefulWidget is chosen for dynamic interfaces that change because  of interactions / data, e.g., counter, form, or toggle.
+Scaffold menyediakan kerangka halaman yang sama (AppBar di atas, Drawer di samping, body di tengah), dan karena LeftDrawer dibuat sebagai satu widget terpisah yang dipakai ulang di menu.dart, project_form.dart, dan experience_form.dart, setiap halaman memiliki struktur dan navigasi yang konsisten.
+Warna indigo digunakan sebagai warna tema di beberapa halaman, yaitu sebagai seedColor tema di main.dart yang dipakai lewat colorScheme.primary pada AppBar halaman utama serta AppBar dan tombol Simpan halaman formulir pengalaman, juga sebagai latar DrawerHeader.
 
-5. BuildContext is the position marker of a widget in a widget tree that is important to acccess data from the ancestor widget, in the build method, it is used for example on Theme.of(context), MediaQuery.of(context), and ScaffoldMessenger.of(context).
+3. Tata letak formulir
 
-6. hot reload injects code changes to application that is running without deleting state, while hot restart reruns the application from scratch so that the state is gone in the process. We need hot restart when changing stuff that is not rerun by build, like main() function, global variable initialization or statuc, initState, type changes or class structure, enumerate, and also native code changes, plugin, or even pubspec.yaml.
+Formulir disusun dengan Column dan crossAxisAlignment: CrossAxisAlignment.start agar setiap field tersusun vertikal dan rata kiri sehingga mudah dibaca dan diisi satu per satu.
+Padding dengan EdgeInsets.all(8.0) memberi jarak antar-field agar tidak berdempetan, sedangkan SingleChildScrollView membuat formulir bisa digulir ketika layar sempit atau keyboard muncul sehingga semua field dan tombol Simpan tetap dapat dijangkau tanpa overflow.
 
+4. Validasi formulir
+
+GlobalKey<FormState> memberi akses ke state Form, validator pada tiap field berisi aturan yang mengembalikan pesan error atau null, dan _formKey.currentState!.validate() menjalankan semua validator saat tombol Simpan ditekan sehingga dialog hanya muncul jika semua input valid.
+Contoh nilai yang ditolak adalah URL Thumbnail berisi "example.com", karena tidak diawali http:// atau https:// sehingga muncul pesan "Masukkan URL yang valid (diawali http:// atau https://)!"; Judul berisi spasi saja ("   ") juga ditolak karena value.trim().isEmpty bernilai true.
+Memilih jenis input atau keyboard saja belum cukup karena keyboard (misalnya TextInputType.url) hanya membantu cara mengetik, tidak memastikan isi input benar: pengguna tetap bisa mengosongkan field, mengetik spasi saja, menempelkan (paste) teks yang bukan URL, atau memilih tanggal selesai yang lebih awal dari tanggal mulai.
+
+### Penggunaan AI

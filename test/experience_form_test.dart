@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:myportofolio_mobile/main.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
 
 void main() {
   void useScreen(WidgetTester tester, Size size) {
@@ -19,7 +20,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> pickDay(WidgetTester tester, String fieldLabel, String day) async {
+  Future<void> pickDay(
+      WidgetTester tester, String fieldLabel, String day) async {
     await tester.tap(find.widgetWithText(TextFormField, fieldLabel));
     await tester.pumpAndSettle();
     await tester.tap(find.text(day));
@@ -34,9 +36,10 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Action card opens the form and back returns home', (tester) async {
+  testWidgets('Action card opens the form and back returns home',
+      (tester) async {
     useScreen(tester, const Size(800, 1400));
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(apiClient: ApiClient()));
 
     await tester.tap(find.text('Tambah Pengalaman'));
     await tester.pumpAndSettle();
@@ -48,9 +51,10 @@ void main() {
     expect(find.text('Lihat Proyek'), findsOneWidget);
   });
 
-  testWidgets('Drawer opens the form and Home returns to the main page', (tester) async {
+  testWidgets('Drawer opens the form and Home returns to the main page',
+      (tester) async {
     useScreen(tester, const Size(800, 1400));
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(apiClient: ApiClient()));
 
     await openFormFromDrawer(tester);
     expect(find.text('Add Experience Form'), findsOneWidget);
@@ -68,14 +72,17 @@ void main() {
 
   testWidgets('Invalid input shows field errors and no dialog', (tester) async {
     useScreen(tester, const Size(800, 1400));
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(apiClient: ApiClient()));
     await openFormFromDrawer(tester);
 
     // Hanya spasi pada field wajib, dan URL tanpa skema.
-    await tester.enterText(find.widgetWithText(TextFormField, 'Judul Pengalaman'), '   ');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Deskripsi'), '  ');
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'URL Thumbnail (opsional)'), 'example.com');
+        find.widgetWithText(TextFormField, 'Judul Pengalaman'), '   ');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Deskripsi'), '  ');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'URL Thumbnail (opsional)'),
+        'example.com');
     await tapSave(tester);
 
     expect(find.text('Judul tidak boleh kosong!'), findsOneWidget);
@@ -87,33 +94,43 @@ void main() {
 
   testWidgets('End date before start date is rejected', (tester) async {
     useScreen(tester, const Size(800, 1400));
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(apiClient: ApiClient()));
     await openFormFromDrawer(tester);
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Judul Pengalaman'), 'Intern');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Deskripsi'), 'Built things');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Judul Pengalaman'), 'Intern');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Deskripsi'), 'Built things');
     await pickDay(tester, 'Tanggal Mulai', '15');
-    await pickDay(tester, 'Tanggal Selesai (kosongkan jika masih berlangsung)', '10');
+    await pickDay(
+        tester, 'Tanggal Selesai (kosongkan jika masih berlangsung)', '10');
     await tapSave(tester);
 
-    expect(find.text('Tanggal selesai tidak boleh sebelum tanggal mulai!'), findsOneWidget);
+    expect(find.text('Tanggal selesai tidak boleh sebelum tanggal mulai!'),
+        findsOneWidget);
     expect(find.byType(AlertDialog), findsNothing);
   });
 
-  testWidgets('Valid input shows every value in the dialog, Tutup closes it', (tester) async {
+  testWidgets('Valid input shows every value in the dialog, Tutup closes it',
+      (tester) async {
     useScreen(tester, const Size(800, 1400));
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(apiClient: ApiClient()));
     await openFormFromDrawer(tester);
 
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Judul Pengalaman'), 'Software Engineer Intern');
+        find.widgetWithText(TextFormField, 'Judul Pengalaman'),
+        'Software Engineer Intern');
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Organisasi (opsional)'), 'Opsigo Asia');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Deskripsi'), 'Built the API');
-    await tester.enterText(find.widgetWithText(TextFormField, 'URL Thumbnail (opsional)'),
+        find.widgetWithText(TextFormField, 'Organisasi (opsional)'),
+        'Opsigo Asia');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Deskripsi'), 'Built the API');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'URL Thumbnail (opsional)'),
         'https://example.com/a.png');
     await pickDay(tester, 'Tanggal Mulai', '10');
-    await pickDay(tester, 'Tanggal Selesai (kosongkan jika masih berlangsung)', '15');
+    await pickDay(
+        tester, 'Tanggal Selesai (kosongkan jika masih berlangsung)', '15');
     await tapSave(tester);
 
     expect(find.byType(AlertDialog), findsOneWidget);
@@ -131,10 +148,12 @@ void main() {
     expect(find.byType(ExperienceFormPage), findsOneWidget);
   });
 
-  testWidgets('Form fits a narrow phone screen and Simpan is reachable', (tester) async {
+  testWidgets('Form fits a narrow phone screen and Simpan is reachable',
+      (tester) async {
     useScreen(tester, const Size(320, 568));
     await tester.pumpWidget(MaterialApp(
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
       home: const ExperienceFormPage(),
     ));
 

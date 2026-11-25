@@ -16,7 +16,9 @@ String? validateThumbnailUrl(String? value) {
   final valid = uri != null &&
       (uri.scheme == 'http' || uri.scheme == 'https') &&
       uri.host.contains('.');
-  return valid ? null : "Masukkan URL yang valid (diawali http:// atau https://)!";
+  return valid
+      ? null
+      : "Masukkan URL yang valid (diawali http:// atau https://)!";
 }
 
 /// Formulir untuk menambahkan pengalaman (model Experience pada web portofolio).
@@ -64,14 +66,25 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
 
   static String formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
   Future<void> _pickDate({required bool isStart}) async {
-    final initial = (isStart ? _startedAt : _endedAt) ?? _startedAt ?? DateTime.now();
+    final initial =
+        (isStart ? _startedAt : _endedAt) ?? _startedAt ?? DateTime.now();
     final picked = await showDatePicker(
       context: context,
       initialDate: initial,
@@ -123,12 +136,15 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Judul: ${_title.trim()}'),
-                Text('Organisasi: ${_organization.trim().isEmpty ? "-" : _organization.trim()}'),
+                Text(
+                    'Organisasi: ${_organization.trim().isEmpty ? "-" : _organization.trim()}'),
                 Text('Deskripsi: ${_description.trim()}'),
                 Text('Kategori: ${categories[_category]}'),
-                Text('Thumbnail: ${_thumbnail.trim().isEmpty ? "-" : _thumbnail.trim()}'),
+                Text(
+                    'Thumbnail: ${_thumbnail.trim().isEmpty ? "-" : _thumbnail.trim()}'),
                 Text('Mulai: ${formatDate(_startedAt!)}'),
-                Text('Selesai: ${_endedAt == null ? "Masih berlangsung" : formatDate(_endedAt!)}'),
+                Text(
+                    'Selesai: ${_endedAt == null ? "Masih berlangsung" : formatDate(_endedAt!)}'),
               ],
             ),
           ),
@@ -211,8 +227,8 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                   minLines: 3,
                   maxLines: 6,
                   keyboardType: TextInputType.multiline,
-                  decoration: _decoration("Deskripsi",
-                      hint: "Satu poin per baris"),
+                  decoration:
+                      _decoration("Deskripsi", hint: "Satu poin per baris"),
                   onChanged: (value) => setState(() => _description = value),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
